@@ -1,0 +1,23 @@
+[
+    {
+        "active": true,
+        "file_name": "005_zoia_barfoo.bin",
+        "full_path": "/var/tmp/patches/005_zoia_barfoo.bin",
+        "name": "barfoo.bin",
+        "preferred_index": 60
+    },
+    {
+        "active": false,
+        "file_name": "barbar.bin",
+        "full_path": "/var/tmp/patches/barbar.bin",
+        "name": "barbar.bin",
+        "preferred_index": null
+    },
+    {
+        "active": true,
+        "file_name": "005_zoia_foobar.bin",
+        "full_path": "/var/tmp/patches/005_zoia_foobar.bin",
+        "name": "foobar.bin",
+        "preferred_index": null
+    }
+]
