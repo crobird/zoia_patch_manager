@@ -134,6 +134,14 @@ def print_patch_files(patch_files):
     for pf in patch_files:
         print(pf)
 
+def get_preferred_index_patches(patch_files):
+    index_map = {}
+    for patch_file in patch_files:
+        if patch_file.preferred_index:
+            if not patch_file.preferred_index in index_map:
+                index_map[patch_file.preferred_index] = []
+            index_map[patch_file.preferred_index].append(patch_file.name)
+    return index_map
 
 def config_stats(config_path, patch_dir):
     """
@@ -145,10 +153,29 @@ def config_stats(config_path, patch_dir):
     patch_files = get_patch_files_from_config(config_path)
     total_patches = len(patch_files)
     active_patches = len([x for x in patch_files if x.active])
+    preferred_index_patches = get_preferred_index_patches(patch_files)
+    preferred_index_patch_count = sum([len(preferred_index_patches[i]) for i in preferred_index_patches])
+
+    preferred_index_strs = []
+    for i in sorted(preferred_index_patches.keys()):
+        conflict_char = '*' if len(preferred_index_patches[i]) > 1 else ' '
+        for p in preferred_index_patches[i]:
+            preferred_index_strs.append(f"\t{conflict_char}[{i}] {p}")
+    preferred_index_str = "\n".join(preferred_index_strs)
+
     print(f"""
-    total_patches: {total_patches}
-    active_patches: {active_patches}
+    {config_path}
+
+    total patches: {total_patches}
+    active patches: {active_patches}
+
+    patches with preferred index: {preferred_index_patch_count}
+    {preferred_index_str}
     """)
+
+
+
+
 
 
 def delete_files_in_dir(dest_dir, verbose=False):
@@ -243,7 +270,7 @@ def main(args):
         copy_files(patch_files, args.dest_dir, verbose=args.verbose)
 
     elif args.action == ACTION_CONFIG_STATS:
-        config_stats(args.config)
+        config_stats(args.config, args.patch_dir)
 
     else:
         print("Error: Invalid or missing action")
@@ -270,6 +297,7 @@ if __name__ == '__main__':
 
     parser_config_stats = subparsers.add_parser(ACTION_CONFIG_STATS, help="Provide some stats about a config file")
     parser_config_stats.add_argument('-c', '--config', help=f"Config file (default: {DEFAULT_CONFIG})", default=DEFAULT_CONFIG)
+    parser_config_stats.add_argument('-p', '--patch_dir', help=f'Patch dir (default: {DEFAULT_PATCH_DIR})', default=DEFAULT_PATCH_DIR)    
     parser_config_stats.set_defaults(func=config_stats)
 
     args = parser.parse_args()
